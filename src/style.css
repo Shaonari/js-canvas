@@ -1,0 +1,24 @@
+.App {
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 400px;
+  margin: 32px auto;
+  border: 1px solid #000000;
+}
+
+.cell {
+  width: 20px;
+  height: 20px;
+}
+
+.line {
+  background-color: #000000;
+}
+
+.fill {
+  background-color: #C0C0C0;
+}
