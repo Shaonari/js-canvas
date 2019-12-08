@@ -27,11 +27,19 @@ function drawLine (command, canvas) {
 function drawRectangle (command, canvas) {
   const [, x1, y1, x2, y2] = command;
 
+  if (command.length !== 5) {
+    throw new Error('Incorrect arguments length');
+  }
+
+  if(x1 < 0 || y1 < 0 || x2 > canvas.length || y2 > canvas[0].length) {
+    throw new Error('Rectangle cannot be drawn outside of canvas')
+  }
+
   for (let x = x1 - 1; x < x2; x++) {
     for (let y = y1 - 1; y < y2; y++) {
       if (x === x1 - 1 || x === x2 - 1) {
         canvas[x][y] = 'x';
-      } else if (y === y1 -1 || y === y2 - 1) {
+      } else if (y === y1 - 1 || y === y2 - 1) {
         canvas[x][y] = 'x';
       }
     }
@@ -60,7 +68,33 @@ function floodArea (x, y, color, cellColor, canvas) {
   floodArea(x, y - 1, color, targetColor, canvas);
 };
 
-function parseText (text) {
+export function createTextFile (data) {
+  let textFile = null;
+  let text = '';
+
+  for (let y = 0; y < data[0].length; y++) {
+    for (let x = 0; x < data.length; x++) {
+      if (data[x][y] !== undefined) {
+        text = text.concat(data[x][y])
+      } else {
+        text = text.concat(' ');
+      }
+    }
+    text = text.concat('\n');
+  }
+
+  let result = new Blob([text], {type: 'text/plain'});
+
+  if (textFile !== null) {
+    window.URL.revokeObjectURL(textFile);
+  }
+
+  textFile = window.URL.createObjectURL(result);
+
+  return textFile;
+};
+
+export default function (text) {
   let canvas = null;
   const lines = text.trim().split('\n');
 
@@ -89,38 +123,4 @@ function parseText (text) {
   });
 
   return canvas;
-};
-
-export function createTextFile (data) {
-  let textFile = null;
-  let text = '';
-
-  for (let y = 0; y < data[0].length; y++) {
-    for (let x = 0; x < data.length; x++) {
-      if (data[x][y] !== undefined) {
-        text = text.concat(data[x][y])
-      } else {
-        text = text.concat(' ');
-      }
-    }
-    text = text.concat('\n');
-  }
-
-  let result = new Blob([text], {type: 'text/plain'});
-
-  if (textFile !== null) {
-    window.URL.revokeObjectURL(textFile);
-  }
-
-  textFile = window.URL.createObjectURL(result);
-
-  return textFile;
-};
-
-export default async function () {
-  return fetch('./input.txt')
-    .then(response => response.text())
-    .then(data => {
-       return parseText(data)
-    });
 };

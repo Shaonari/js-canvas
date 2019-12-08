@@ -7,15 +7,24 @@ import './style.css';
 function App() {
   const [data, setData] = useState(null);
   const [isParsing, setIsParsing] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsParsing(true);
 
-      const result = await createCanvasArray();
+      try {
+        const result = await fetch('./input.txt')
+        .then(response => response.text())
+        .then(data => {
+          return createCanvasArray(data)
+        });
 
+        setData(result);
+      } catch (error) {
+        setError(error.message);
+      }
 
-      setData(result);
       setIsParsing(false);
     };
 
@@ -44,15 +53,18 @@ function App() {
 
   return (
     <div className="App">
-      { isParsing && <div> parsing </div> }
+      { isParsing && <div className="loader"></div> }
       {
-        !isParsing && data &&
+        data &&
         <>
         <div className="container">
           { drawCanvas() }
         </div>
-        <a href={ createTextFile(data) } download="output.txt">download</a>
+        <a href={ createTextFile(data) } download="output.txt" className="download">download txt file</a>
         </>
+      }
+      {
+        error && <div>{ error }</div>
       }
     </div>
   );
